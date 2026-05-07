@@ -1,7 +1,14 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
-import { Product } from './product.entity';
+
+import { Product } from '../product/entities/product.entity';
+
+import { CreateProductDto } from './dto/create-product.dto';
+
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductService implements OnModuleInit {
@@ -10,25 +17,47 @@ export class ProductService implements OnModuleInit {
     private readonly repo: Repository<Product>,
   ) {}
 
-  findAll(): Promise<Product[]> {
-    return this.repo.find();
+  onModuleInit() {
+    console.log('ProductService initialized');
   }
 
-  findOne(id: number): Promise<Product | null> {
-    return this.repo.findOneBy({ id });
+  async findAll(): Promise<Product[]> {
+    return await this.repo.find({
+      relations: ['orderPO', 'steelType'],
+    });
   }
 
-  async onModuleInit() {
-    const count = await this.repo.count();
-    if (count === 0) {
-      const items: Partial<Product>[] = [
-        { name: 'Sample A', description: 'Example product A', price: 9.99 },
-        { name: 'Sample B', description: 'Example product B', price: 19.99 },
-      ];
-      for (const it of items) {
-        const p = this.repo.create(it as Product);
-        await this.repo.save(p);
-      }
+  async findOne(id: number): Promise<Product> {
+    const product = await this.repo.findOne({
+      where: { id },
+
+      relations: ['orderPO', 'steelType'],
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
     }
+
+    return product;
+  }
+
+  async create(dto: CreateProductDto): Promise<Product> {
+    const product = this.repo.create(dto);
+
+    return await this.repo.save(product);
+  }
+
+  async update(id: number, dto: UpdateProductDto): Promise<Product> {
+    const product = await this.findOne(id);
+
+    Object.assign(product, dto);
+
+    return await this.repo.save(product);
+  }
+
+  async remove(id: number): Promise<void> {
+    const product = await this.findOne(id);
+
+    await this.repo.remove(product);
   }
 }

@@ -1,0 +1,11 @@
+import { Request } from 'express';
+
+import { Role } from '../../common/enums/index';
+
+export interface RequestWithUser extends Request {
+  user: {
+    userId: number;
+    email: string;
+    role: Role;
+  };
+}

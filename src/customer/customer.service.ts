@@ -19,16 +19,17 @@ export class CustomerService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    const count = await this.repo.count();
-    if (count === 0) {
-      const items: Partial<Customer>[] = [
-        { id: 1, name: 'John Doe', email: 'john.doe@example.com' },
-        { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com' },
-        { id: 3, name: 'Alice Johnson', email: 'alice.johnson@example.com' },
-        { id: 4, name: 'Bob Brown', email: 'bob.brown@example.com' },
-      ];
-      await this.repo.save(items);
-    }
+    // Seed data commented out - define proper address values before uncommenting
+    // const count = await this.repo.count();
+    // if (count === 0) {
+    //   const items: Partial<Customer>[] = [
+    //     { id: 1, name: 'John Doe', email: 'john.doe@example.com', address: '' },
+    //     { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com', address: '' },
+    //     { id: 3, name: 'Alice Johnson', email: 'alice.johnson@example.com', address: '' },
+    //     { id: 4, name: 'Bob Brown', email: 'bob.brown@example.com', address: '' },
+    //   ];
+    //   await this.repo.save(items);
+    // }
   }
 
   async search(q: string): Promise<Customer[]> {
